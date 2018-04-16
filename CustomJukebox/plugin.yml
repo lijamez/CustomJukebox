@@ -1,0 +1,32 @@
+name: CustomJukebox
+main: world.thefountain.customjukebox.CustomJukeboxPlugin
+version: 0.1
+author: Tonberry
+depend: [NoteBlockAPI]
+commands:
+  cjlist:
+    description: Shows a list of songs for the custom jukebox.
+    usage: /<command>
+    permission: customjukebox.list
+    permission-message: You don't have permissions to do that.
+  cjrefresh:
+    description: Refreses the list of songs.
+    usage: /<command>
+    permission: customjukebox.refresh
+    permission-message: You don't have permissions to do that.
+permissions:
+  customjukebox.*:
+    description: "All Custom Jukebox Permissions"
+    children:
+      customjukebox.list: true
+      customjukebox.refresh: true
+      customjukebox.placemusicsign: true
+  customjukebox.list:
+    description: "Lists the songs playable by the custom jukebox."
+    default: true
+  customjukebox.refresh:
+    description: "Refreshes the songs."
+    default: op
+  customjukebox.placemusicsign:
+    description: "Determines whether if the player can place a music sign."
+    default: true
