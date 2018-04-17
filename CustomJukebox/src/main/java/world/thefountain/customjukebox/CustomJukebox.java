@@ -17,7 +17,7 @@ import com.xxmicloxx.NoteBlockAPI.SongEndEvent;
 
 public class CustomJukebox implements Listener {
 	
-	private static final int JUKEBOX_DISTANCE = 40;
+	public static final int MAX_AUDIBLE_DISTANCE = 40;
 	
 	private final Plugin plugin;
 	private final Block sign;
@@ -84,6 +84,14 @@ public class CustomJukebox implements Listener {
 		}
 	}
 	
+	/**
+	 * Get the location of the sound source.
+	 * @return A clone of the sound source's {@link Location}.
+	 */
+	public Location getSoundSourceLocation() {
+		return this.songPlayer.getTargetLocation().clone();
+	}
+	
 	@EventHandler
 	public void onLogin(PlayerLoginEvent event) {
 		if (songPlayer != null) {
@@ -124,7 +132,7 @@ public class CustomJukebox implements Listener {
 		PositionSongPlayer sp = new PositionSongPlayer(song);
 		sp.setTargetLocation(location);
 		sp.setAutoDestroy(true);
-		sp.setDistance(JUKEBOX_DISTANCE);
+		sp.setDistance(MAX_AUDIBLE_DISTANCE);
 		sp.setPlaying(true);
 		
 		this.plugin.getServer().getOnlinePlayers().stream()

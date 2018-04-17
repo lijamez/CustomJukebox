@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -27,6 +29,8 @@ import com.xxmicloxx.NoteBlockAPI.Song;
 
 public class CustomJukeboxManager implements Listener {
 
+	private static final double MIN_DISTANCE_APART = CustomJukebox.MAX_AUDIBLE_DISTANCE;
+	
 	private static final List<BlockFace> ATTACHABLE_FACES = Collections.unmodifiableList(Lists.newArrayList(
 			BlockFace.NORTH,
 			BlockFace.SOUTH,
@@ -75,8 +79,15 @@ public class CustomJukeboxManager implements Listener {
 			.forEach(blockState -> {
 				try {
 					if (blockState instanceof org.bukkit.block.Sign) {
+						Bukkit.getLogger().info("Some sign found at " + blockState.getLocation());
+						
 						org.bukkit.block.Sign s = (org.bukkit.block.Sign) blockState;
-						createCustomJukeboxFrom(blockState, s.getLines(), null);
+						CustomJukebox cj = createCustomJukeboxFrom(blockState, s.getLines(), null)
+								.orElse(null);
+						
+						if (cj != null) {
+							customJukeboxes.add(cj);
+						}
 					}
 				} catch (MusicSignExistsException | SongNotFoundException e) {
 					Bukkit.getLogger().log(Level.WARNING, "Found a music sign, but is bad.", e);
@@ -98,7 +109,7 @@ public class CustomJukeboxManager implements Listener {
 					this.customJukeboxes.add(cj);
 				}
 			} catch (UserException e) {
-				event.getPlayer().sendMessage("Error: " + e.getMessage());
+				event.getPlayer().sendMessage(ChatColor.RED + "Error: " + e.getMessage());
 				event.getBlock().breakNaturally();
 			}
 		}
@@ -116,17 +127,15 @@ public class CustomJukeboxManager implements Listener {
 		
 		if (MusicSignUtils.isMusicSign(signBlock, signLines) && attachedBlock != null && attachedBlock.getType() == Material.JUKEBOX) {
 			
-			if (player != null && !player.hasPermission("customjukebox.placemusicsign")) {
-				throw new PermissionException("You don't have permissions to do that.");
+			checkMusicSignPlacementPermissions(player);
+			checkSingletonMusicSign(attachedBlock, signBlock);
+			
+			if (player != null) {
+				// Only new jukeboxes being created by players should be subject to the proximity check.
+				checkProximity(attachedBlock.getLocation());
 			}
 			
-			List<Block> attachedMusicSigns = getAttachedMusicSignBlocks(attachedBlock);
-			
-			if (attachedMusicSigns.size() > 1 || (attachedMusicSigns.size() == 1 && !attachedMusicSigns.get(0).equals(signBlock))) {
-				throw new MusicSignExistsException("A music sign is already attached to this jukebox.");
-			} 
-			
-			Song song = MusicSignUtils.parseSignLines(signLines, songLib).orElse(null);
+			Song song = MusicSignUtils.parseSongFromSignLines(signLines, songLib).orElse(null);
 			
 			if (song != null) {
 				CustomJukebox cj = new CustomJukebox(this.plugin, signBlock, attachedBlock, song);
@@ -137,6 +146,42 @@ public class CustomJukeboxManager implements Listener {
 		}
 		
 		return Optional.empty();
+	}
+	
+	private void checkMusicSignPlacementPermissions(Player player) {
+		if (player != null && !player.hasPermission("customjukebox.placemusicsign")) {
+			throw new PermissionException("You don't have permissions to do that.");
+		}
+	}
+	
+	/**
+	 * Checks that the jukebox has no other music signs.
+	 * @param jukeboxBlock The jukebox block.
+	 * @param signBlock The sign block that you are turning into a music sign.
+	 * @throws MusicSignExistsException if there already exists some other music sign on this jukebox.
+	 */
+	private void checkSingletonMusicSign(Block jukeboxBlock, Block signBlock) {
+		List<Block> attachedMusicSigns = getAttachedMusicSignBlocks(jukeboxBlock);
+		
+		if (attachedMusicSigns.size() > 1 || (attachedMusicSigns.size() == 1 && !attachedMusicSigns.get(0).equals(signBlock))) {
+			throw new MusicSignExistsException("A music sign is already attached to this jukebox.");
+		}
+	}
+	
+	/**
+	 * Checks that there is no other custom jukebox that's closer than {@link CustomJukeboxManager#MIN_DISTANCE_APART).
+	 * @param loc The location of the new jukebox.
+	 */
+	private void checkProximity(Location loc) {
+		boolean tooCloseToAnotherCustomJukebox = customJukeboxes.stream()
+			.filter(cj -> cj.getSoundSourceLocation().getWorld().equals(loc.getWorld()))
+			.filter(cj -> cj.getSoundSourceLocation().distance(loc) < MIN_DISTANCE_APART)
+			.findAny()
+			.isPresent();
+		
+		if (tooCloseToAnotherCustomJukebox) {
+			throw new ProximityException("You are too close to another custom jukebox.");
+		}
 	}
 	
 	private List<Block> getAttachedMusicSignBlocks(Block block) {

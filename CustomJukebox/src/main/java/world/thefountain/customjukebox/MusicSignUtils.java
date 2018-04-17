@@ -14,7 +14,21 @@ class MusicSignUtils {
 	
 	private MusicSignUtils() { }
 	
-	public static Optional<Song> parseSignLines(String[] signLines, SongLibrary songLib) {
+	/**
+	 * Parses the sign lines for a song.
+	 * @param signLines The sign's lines.
+	 * @param songLib {@link SongLibrary}.
+	 * @return The song.
+	 * @throws SongNotFoundException if the song couldn't be found.
+	 */
+	public static Optional<Song> parseSongFromSignLines(String[] signLines, SongLibrary songLib) {
+		if (signLines == null) {
+			throw new IllegalArgumentException("signLines must be non-null.");
+		}
+		
+		if (songLib == null) {
+			throw new IllegalArgumentException("songLib must be non-null.");
+		}
 		
 		if (signLines.length < 2) {
 			return Optional.empty();
