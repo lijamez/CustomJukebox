@@ -84,12 +84,8 @@ public class CustomJukebox implements Listener {
 		}
 	}
 	
-	/**
-	 * Get the location of the sound source.
-	 * @return A clone of the sound source's {@link Location}.
-	 */
-	public Location getSoundSourceLocation() {
-		return this.songPlayer.getTargetLocation().clone();
+	public Location getSignLocation() {
+		return this.sign.getLocation();
 	}
 	
 	@EventHandler

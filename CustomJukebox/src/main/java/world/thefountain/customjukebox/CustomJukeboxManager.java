@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -21,6 +22,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.material.Sign;
 import org.bukkit.plugin.Plugin;
 
@@ -38,7 +41,7 @@ public class CustomJukeboxManager implements Listener {
 			BlockFace.WEST,
 			BlockFace.UP));
 	
-	private final List<CustomJukebox> customJukeboxes = new ArrayList<>();
+	private final List<CustomJukebox> customJukeboxes = Collections.synchronizedList(new ArrayList<>());
 	
 	private final Plugin plugin;
 	private final SongLibrary songLib;
@@ -60,6 +63,29 @@ public class CustomJukeboxManager implements Listener {
 		initCustomJukeboxes();
 	}
 	
+	@EventHandler
+	public void onChunkLoaded(ChunkLoadEvent event) {
+		loadCustomJukeboxesFromChunk(event.getChunk());
+	}
+	
+	@EventHandler
+	public void onChunkUnloaded(ChunkUnloadEvent event) {
+		Chunk unloadedChunk = event.getChunk();
+		
+		List<CustomJukebox> removeables = customJukeboxes.stream()
+			.filter(cj -> {
+				Chunk signChunk = cj.getSignLocation().getChunk();
+				return signChunk.equals(unloadedChunk);
+			})
+			.collect(Collectors.toList());
+		
+		removeables.forEach(cj -> {
+				cj.stop();
+			});
+		
+		customJukeboxes.removeAll(removeables);
+	}
+	
 	public void destroy() {
 		customJukeboxes.forEach(cj -> {
 			cj.stop();
@@ -75,12 +101,15 @@ public class CustomJukeboxManager implements Listener {
 		
 		this.plugin.getServer().getWorlds().stream()
 			.flatMap(world -> Arrays.stream(world.getLoadedChunks()))
-			.flatMap(chunk -> Arrays.stream(chunk.getTileEntities()))
+			.forEach(chunk -> loadCustomJukeboxesFromChunk(chunk));
+			
+	}
+	
+	private void loadCustomJukeboxesFromChunk(Chunk chunk) {
+		Arrays.stream(chunk.getTileEntities())
 			.forEach(blockState -> {
 				try {
 					if (blockState instanceof org.bukkit.block.Sign) {
-						Bukkit.getLogger().info("Some sign found at " + blockState.getLocation());
-						
 						org.bukkit.block.Sign s = (org.bukkit.block.Sign) blockState;
 						CustomJukebox cj = createCustomJukeboxFrom(blockState, s.getLines(), null)
 								.orElse(null);
@@ -174,8 +203,8 @@ public class CustomJukeboxManager implements Listener {
 	 */
 	private void checkProximity(Location loc) {
 		boolean tooCloseToAnotherCustomJukebox = customJukeboxes.stream()
-			.filter(cj -> cj.getSoundSourceLocation().getWorld().equals(loc.getWorld()))
-			.filter(cj -> cj.getSoundSourceLocation().distance(loc) < MIN_DISTANCE_APART)
+			.filter(cj -> cj.getSignLocation().getWorld().equals(loc.getWorld()))
+			.filter(cj -> cj.getSignLocation().distance(loc) < MIN_DISTANCE_APART)
 			.findAny()
 			.isPresent();
 		
