@@ -2,7 +2,6 @@ package world.thefountain.customjukebox;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,6 +11,8 @@ import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.xxmicloxx.NoteBlockAPI.NBSDecoder;
 import com.xxmicloxx.NoteBlockAPI.Song;
 
@@ -27,11 +28,7 @@ public class SongLibrary {
 	private List<Song> songs;
 	
 	public SongLibrary(File songsDir) {
-		if (songsDir == null) {
-			throw new IllegalArgumentException("songsDir must be non-null.");
-		}
-		
-		this.songsDir = songsDir;
+		this.songsDir = Preconditions.checkNotNull(songsDir, "songsDir must be non-null.");
 		
 		refreshSongs();
 	}
@@ -39,7 +36,7 @@ public class SongLibrary {
 	public void refreshSongs() {
 		File[] searchResults = songsDir.listFiles((f) -> f.getName().endsWith(SONG_FILE_EXT));
 		
-		List<Song> songsMutable = Arrays.stream(searchResults)
+		this.songs = Arrays.stream(searchResults)
 			.flatMap(file -> {
 				try {
 					return Stream.of(NBSDecoder.parse(file));
@@ -48,9 +45,7 @@ public class SongLibrary {
 					return Stream.empty();
 				}
 			})
-			.collect(Collectors.toList());
-		
-		this.songs = Collections.unmodifiableList(songsMutable);
+			.collect(ImmutableList.toImmutableList());
 	}
 	
 	/**
@@ -59,27 +54,25 @@ public class SongLibrary {
 	 * @return A {@link Song}, if it could find one with the given query.
 	 */
 	public Optional<Song> findSong(String query) {
-		if (query == null) {
-			throw new IllegalArgumentException("query must be non-null.");
-		}
+		Preconditions.checkNotNull(query, "query must be non-null.");
 		
 		Map<String, Song> titleToSongMap = this.songs.stream()
 			.collect(Collectors.toMap(song -> song.getTitle(), song -> song));
 		
 		List<ExtractedResult> results = FuzzySearch.extractTop(query, titleToSongMap.keySet(), 1);
-		if (results.isEmpty()) {
-			return Optional.empty();
-		} else {
+		
+		Song result = null;
+		if (!results.isEmpty()) {
 			ExtractedResult topHit = results.get(0);
-			Song topHitSong = topHit.getScore() < HIT_SCORE_THRESHOLD ? null : titleToSongMap.get(topHit.getString());
-			
-			return Optional.ofNullable(topHitSong);
+			result = topHit.getScore() < HIT_SCORE_THRESHOLD ? null : titleToSongMap.get(topHit.getString());
 		}
+		
+		return Optional.ofNullable(result);
 	}
 	
 	/**
 	 * Gets an immutable view of the songs list.
-	 * @return 
+	 * @return An immutable list of songs.
 	 */
 	public List<Song> getSongs() {
 		return songs;

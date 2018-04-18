@@ -28,6 +28,8 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.material.Sign;
 import org.bukkit.plugin.Plugin;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.xxmicloxx.NoteBlockAPI.Song;
 
@@ -35,12 +37,12 @@ public class CustomJukeboxManager implements Listener {
 
 	private static final double MIN_DISTANCE_APART = CustomJukebox.MAX_AUDIBLE_DISTANCE;
 	
-	private static final List<BlockFace> ATTACHABLE_FACES = Collections.unmodifiableList(Lists.newArrayList(
+	private static final List<BlockFace> ATTACHABLE_FACES = ImmutableList.of(
 			BlockFace.NORTH,
 			BlockFace.SOUTH,
 			BlockFace.EAST,
 			BlockFace.WEST,
-			BlockFace.UP));
+			BlockFace.UP);
 	
 	private final List<CustomJukebox> customJukeboxes = Collections.synchronizedList(new ArrayList<>());
 	
@@ -48,16 +50,8 @@ public class CustomJukeboxManager implements Listener {
 	private final SongLibrary songLib;
 	
 	public CustomJukeboxManager(Plugin plugin, SongLibrary songLib) {
-		if (plugin == null) {
-			throw new IllegalArgumentException("plugin must be non-null.");
-		}
-		
-		if (songLib == null) {
-			throw new IllegalArgumentException("songLib must be non-null.");
-		}
-		
-		this.plugin = plugin;
-		this.songLib = songLib;
+		this.plugin = Preconditions.checkNotNull(plugin, "plugin must be non-null.");
+		this.songLib = Preconditions.checkNotNull(songLib, "songLib must be non-null.");
 		
 		this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
 		
@@ -152,6 +146,8 @@ public class CustomJukeboxManager implements Listener {
 					}
 					
 					event.getPlayer().sendMessage(sb.toString());
+					
+					Bukkit.getLogger().info("Player " + event.getPlayer().getName() + " has created a custom jukebox at " + cj.getSignLocation() + " playing '" + cj.getSong().getTitle() + "'.");
 				}
 			} catch (UserException e) {
 				event.getPlayer().sendMessage(ChatColor.RED + "Error: " + e.getMessage());
@@ -219,7 +215,7 @@ public class CustomJukeboxManager implements Listener {
 			.isPresent();
 		
 		if (tooCloseToAnotherCustomJukebox) {
-			throw new ProximityException("You are too close to another custom jukebox.");
+			throw new ProximityException("That jukebox is too close to another custom jukebox.");
 		}
 	}
 	
@@ -244,5 +240,17 @@ public class CustomJukeboxManager implements Listener {
 	@EventHandler
 	public void onCustomJukeboxDestroyed(CustomJukeboxDestroyedEvent event) {
 		this.customJukeboxes.remove(event.getCustomJukebox());
+		
+		CustomJukebox cj = event.getCustomJukebox();
+		
+		StringBuilder sb = new StringBuilder();
+		if (event.getPlayer().isPresent()) {
+			sb.append("Player " + event.getPlayer().get().getName() + " destroyed ");
+		} else {
+			sb.append("Destroyed ");
+		}
+		sb.append("custom jukebox at " + cj.getSignLocation() + " that was playing '" + cj.getSong().getTitle() + "'.");
+		
+		Bukkit.getLogger().info(sb.toString());
 	}
 }

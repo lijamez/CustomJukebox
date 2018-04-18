@@ -1,8 +1,8 @@
 package world.thefountain.customjukebox;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
+import com.google.common.base.Preconditions;
 import com.xxmicloxx.NoteBlockAPI.PositionSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.Song;
 import com.xxmicloxx.NoteBlockAPI.SongEndEvent;
@@ -27,28 +28,10 @@ public class CustomJukebox implements Listener {
 	private PositionSongPlayer songPlayer = null;
 	
 	public CustomJukebox(Plugin plugin, Block sign, Block jukebox, Song song) {
-		
-		
-		if (plugin == null) {
-			throw new IllegalArgumentException("plugin must be non-null.");
-		}
-
-		if (sign == null) {
-			throw new IllegalArgumentException("sign must be non-null.");
-		}
-		
-		if (jukebox == null) {
-			throw new IllegalArgumentException("jukebox must be non-null.");
-		}
-		
-		if (song == null) {
-			throw new IllegalArgumentException("song must be non-null.");
-		}
-		
-		this.plugin = plugin;
-		this.sign = sign;
-		this.jukebox = jukebox;
-		this.song = song;
+		this.plugin = Preconditions.checkNotNull(plugin, "plugin must be non-null.");
+		this.sign = Preconditions.checkNotNull(sign, "sign must be non-null.");
+		this.jukebox = Preconditions.checkNotNull(jukebox, "jukebox must be non-null.");
+		this.song = Preconditions.checkNotNull(song, "song must be non-null.");
 		
 		play();
 	}
@@ -62,8 +45,6 @@ public class CustomJukebox implements Listener {
 		this.songPlayer = psp;
 		
 		this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
-		
-		Bukkit.getLogger().info("Created custom jukebox at " + psp.getTargetLocation() + " playing '" + this.song.getTitle() + "'");
 	}
 	
 	public void stop() {
@@ -77,15 +58,11 @@ public class CustomJukebox implements Listener {
 		return this.song;
 	}
 	
-	private void destroy() {
+	private void destroy(Player player) {
 		this.stop();
 		
-		CustomJukeboxDestroyedEvent event = new CustomJukeboxDestroyedEvent(this);
+		CustomJukeboxDestroyedEvent event = new CustomJukeboxDestroyedEvent(this, player);
 		this.plugin.getServer().getPluginManager().callEvent(event);
-		
-		if (songPlayer != null) {
-			Bukkit.getLogger().info("Destroyed custom jukebox at " + songPlayer.getTargetLocation());
-		}
 	}
 	
 	public Location getSignLocation() {
@@ -123,7 +100,8 @@ public class CustomJukebox implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (event.getBlock().equals(this.sign) || event.getBlock().equals(this.jukebox)) {
-			this.destroy();
+			
+			this.destroy(event.getPlayer());
 		}
 	}
 	
