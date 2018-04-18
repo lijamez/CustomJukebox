@@ -2,6 +2,7 @@ package world.thefountain.customjukebox;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -40,9 +41,10 @@ class MusicSignUtils {
 			for (int i = 1; i < signLines.length; i++) {
 				trackNameSb.append(signLines[i] + " ");
 			}
-			String trackName = trackNameSb.toString();
 			
-			if (trackName.isEmpty()) {
+			String trackName = StringUtils.trim(trackNameSb.toString());
+			
+			if (StringUtils.isBlank(trackName)) {
 				return Optional.empty();
 			}
 			
@@ -51,10 +53,10 @@ class MusicSignUtils {
 			if (song != null) {
 				return Optional.of(song);
 			} else {
-				throw new SongNotFoundException("Song '" + trackNameSb.toString() + "' couldn't be found.");
+				throw new SongNotFoundException("Song '" + trackName + "' couldn't be found.");
 			}
 		} else {
-			Bukkit.getLogger().info("Sign does not start with : " + SIGN_TITLE);
+			Bukkit.getLogger().info("Sign does not start with: " + SIGN_TITLE);
 		}
 		
 		return Optional.empty();

@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -136,6 +137,21 @@ public class CustomJukeboxManager implements Listener {
 				
 				if (cj != null) {
 					this.customJukeboxes.add(cj);
+					
+					Song song = cj.getSong();
+					
+					StringBuilder sb = new StringBuilder();
+					sb.append("Now playing ")
+						.append(ChatColor.GOLD)
+						.append(song.getTitle());
+					
+					if (!StringUtils.isBlank(song.getAuthor())) {
+						sb.append(ChatColor.RESET)
+							.append(" by ")
+							.append(song.getAuthor());
+					}
+					
+					event.getPlayer().sendMessage(sb.toString());
 				}
 			} catch (UserException e) {
 				event.getPlayer().sendMessage(ChatColor.RED + "Error: " + e.getMessage());

@@ -73,6 +73,10 @@ public class CustomJukebox implements Listener {
 		}
 	}
 	
+	public Song getSong() {
+		return this.song;
+	}
+	
 	private void destroy() {
 		this.stop();
 		
