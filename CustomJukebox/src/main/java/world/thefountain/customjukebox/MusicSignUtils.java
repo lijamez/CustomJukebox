@@ -11,7 +11,7 @@ import com.xxmicloxx.NoteBlockAPI.Song;
 
 class MusicSignUtils {
 
-	private static final String SIGN_TITLE = "[Music]";
+	public static final String SIGN_HEADER = "[Music]";
 	
 	private MusicSignUtils() { }
 	
@@ -35,7 +35,7 @@ class MusicSignUtils {
 			return Optional.empty();
 		}
 		
-		if (SIGN_TITLE.equals(signLines[0])) {
+		if (SIGN_HEADER.equals(signLines[0])) {
 			
 			StringBuilder trackNameSb = new StringBuilder();
 			for (int i = 1; i < signLines.length; i++) {
@@ -56,7 +56,7 @@ class MusicSignUtils {
 				throw new SongNotFoundException("Song '" + trackName + "' couldn't be found.");
 			}
 		} else {
-			Bukkit.getLogger().info("Sign does not start with: " + SIGN_TITLE);
+			Bukkit.getLogger().info("Sign does not start with: " + SIGN_HEADER);
 		}
 		
 		return Optional.empty();
@@ -79,7 +79,7 @@ class MusicSignUtils {
 			}
 			
 			String firstLine = signLines[0];
-			return SIGN_TITLE.equals(firstLine);
+			return SIGN_HEADER.equals(firstLine);
 		}
 		
 		return false;

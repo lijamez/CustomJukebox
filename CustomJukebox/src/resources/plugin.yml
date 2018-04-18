@@ -4,16 +4,9 @@ version: 0.1
 author: Tonberry
 depend: [NoteBlockAPI]
 commands:
-  cjlist:
-    description: Shows a list of songs for the custom jukebox.
-    usage: /<command>
-    permission: customjukebox.list
-    permission-message: You don't have permissions to do that.
-  cjrefresh:
-    description: Refreses the list of songs.
-    usage: /<command>
-    permission: customjukebox.refresh
-    permission-message: You don't have permissions to do that.
+  cj:
+    description: Custom Jukebox commands
+    usage: /<command> <action>
 permissions:
   customjukebox.*:
     description: "All Custom Jukebox Permissions"
@@ -21,6 +14,7 @@ permissions:
       customjukebox.list: true
       customjukebox.refresh: true
       customjukebox.placemusicsign: true
+      customjukebox.placementrestrictions: false
   customjukebox.list:
     description: "Lists the songs playable by the custom jukebox."
     default: true
@@ -29,4 +23,10 @@ permissions:
     default: op
   customjukebox.placemusicsign:
     description: "Determines whether if the player can place a music sign."
+    default: true
+  customjukebox.placementrestrictions:
+    description: "Determines whether if the player is bound to restrictions on where to place the custom jukebox."
+    default: true
+  customjukebox.help:
+    description: "Determines whether if the player can view the help."
     default: true

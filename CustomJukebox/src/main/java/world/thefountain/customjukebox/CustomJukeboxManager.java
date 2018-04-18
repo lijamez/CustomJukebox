@@ -172,13 +172,9 @@ public class CustomJukeboxManager implements Listener {
 		
 		if (MusicSignUtils.isMusicSign(signBlock, signLines) && attachedBlock != null && attachedBlock.getType() == Material.JUKEBOX) {
 			
-			checkMusicSignPlacementPermissions(player);
+			Utils.assertPermissions(player, "customjukebox.placemusicsign");
 			checkSingletonMusicSign(attachedBlock, signBlock);
-			
-			if (player != null) {
-				// Only new jukeboxes being created by players should be subject to the proximity check.
-				checkProximity(attachedBlock.getLocation());
-			}
+			checkProximity(attachedBlock.getLocation(), player);
 			
 			Song song = MusicSignUtils.parseSongFromSignLines(signLines, songLib).orElse(null);
 			
@@ -191,12 +187,6 @@ public class CustomJukeboxManager implements Listener {
 		}
 		
 		return Optional.empty();
-	}
-	
-	private void checkMusicSignPlacementPermissions(Player player) {
-		if (player != null && !player.hasPermission("customjukebox.placemusicsign")) {
-			throw new PermissionException("You don't have permissions to do that.");
-		}
 	}
 	
 	/**
@@ -217,7 +207,11 @@ public class CustomJukeboxManager implements Listener {
 	 * Checks that there is no other custom jukebox that's closer than {@link CustomJukeboxManager#MIN_DISTANCE_APART).
 	 * @param loc The location of the new jukebox.
 	 */
-	private void checkProximity(Location loc) {
+	private void checkProximity(Location loc, Player player) {
+		if (player != null && !player.hasPermission("customjukebox.placementrestrictions")) {
+			return;
+		}
+		
 		boolean tooCloseToAnotherCustomJukebox = customJukeboxes.stream()
 			.filter(cj -> cj.getSignLocation().getWorld().equals(loc.getWorld()))
 			.filter(cj -> cj.getSignLocation().distance(loc) < MIN_DISTANCE_APART)
