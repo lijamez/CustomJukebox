@@ -99,7 +99,8 @@ public class CustomJukebox implements Listener {
 	
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (event.getBlock().equals(this.sign) || event.getBlock().equals(this.jukebox)) {
+		
+		if (!event.isCancelled() && (event.getBlock().equals(this.sign) || event.getBlock().equals(this.jukebox))) {
 			
 			this.destroy(event.getPlayer());
 		}
