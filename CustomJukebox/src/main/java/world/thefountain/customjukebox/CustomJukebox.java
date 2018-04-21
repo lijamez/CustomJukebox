@@ -34,17 +34,17 @@ import com.xxmicloxx.NoteBlockAPI.SoundCategory;
 
 public class CustomJukebox implements Listener {
 	
-	public static final int MAX_AUDIBLE_DISTANCE = 40;
-	private static final int MAX_INTERNAL_VOLUME = 50;
+	public static final int MAX_AUDIBLE_DISTANCE = 30;
+	private static final int MAX_INTERNAL_VOLUME = 100;
 	private static final Map<Rotation, Double> ROTATION_TO_VOLUME_FACTOR = ImmutableMap.<Rotation, Double>builder()
-			.put(Rotation.NONE, 0.125d)
-			.put(Rotation.CLOCKWISE_45, 0.25d)
-			.put(Rotation.CLOCKWISE, 0.375d)
-			.put(Rotation.CLOCKWISE_135, 0.5d)
-			.put(Rotation.FLIPPED, 0.625d)
-			.put(Rotation.FLIPPED_45, 0.75d)
-			.put(Rotation.COUNTER_CLOCKWISE, 0.875d)
-			.put(Rotation.COUNTER_CLOCKWISE_45, 1.0d)
+			.put(Rotation.NONE, 1.0d)
+			.put(Rotation.CLOCKWISE_45, 0.125d)
+			.put(Rotation.CLOCKWISE, 0.25d)
+			.put(Rotation.CLOCKWISE_135, 0.375d)
+			.put(Rotation.FLIPPED, 0.5d)
+			.put(Rotation.FLIPPED_45, 0.625d)
+			.put(Rotation.COUNTER_CLOCKWISE, 0.75d)
+			.put(Rotation.COUNTER_CLOCKWISE_45, 0.875d)
 			.build();
 
 	private final Plugin plugin;
@@ -139,7 +139,7 @@ public class CustomJukebox implements Listener {
 			if (event.getEntity() instanceof ItemFrame) {
 				if (this.volumeKnob == null) {
 					this.volumeKnob = (ItemFrame) event.getEntity();
-					event.getPlayer().sendMessage("Volume knob attached. Put and item inside and rotate it to adjust volume.");
+					event.getPlayer().sendMessage("Volume knob attached. Put an item inside and rotate it to adjust volume.");
 				} else if (!this.volumeKnob.equals(event.getEntity())) {
 					event.setCancelled(true);
 					event.getPlayer().sendMessage("Only one volume knob allowed on the jukebox.");
@@ -192,8 +192,6 @@ public class CustomJukebox implements Listener {
 		} else {
 			this.volumeFactor = ROTATION_TO_VOLUME_FACTOR.getOrDefault(this.volumeKnob.getRotation(), 1d);
 		}
-		
-		this.songPlayer.setDistance((int) (MAX_AUDIBLE_DISTANCE * volumeFactor));
 		
 		// Prevents smooth volume fading when changing volume.
 		this.songPlayer.setFadeDuration(0);

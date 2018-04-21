@@ -104,7 +104,10 @@ public class CustomJukeboxPlugin extends JavaPlugin {
 			.append(ChatColor.GRAY).append("How to create a custom jukebox:\n").append(ChatColor.RESET)
 			.append("Put a sign on a jukebox with the first line saying ").append(ChatColor.GOLD).append(MusicSignUtils.SIGN_HEADER)
 				.append(ChatColor.RESET).append(" and then the remaining lines containing the song name that you want to play. Use ")
-				.append(ChatColor.GREEN).append("/cj list").append(ChatColor.RESET).append(" to see the list of songs.");
+				.append(ChatColor.GREEN).append("/cj list").append(ChatColor.RESET).append(" to see the list of songs.\n")
+			.append(ChatColor.GRAY).append("How to change the volume of a jukebox:\n").append(ChatColor.RESET)
+				.append("Put an Item Frame on the jukebox, put an item inside that frame, and rotate it.");
+		
 		
 		sender.sendMessage(sb.toString());
 	}
