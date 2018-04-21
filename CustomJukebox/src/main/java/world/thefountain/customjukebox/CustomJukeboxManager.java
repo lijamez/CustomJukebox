@@ -37,7 +37,7 @@ public class CustomJukeboxManager implements Listener {
 
 	private static final double MIN_DISTANCE_APART = CustomJukebox.MAX_AUDIBLE_DISTANCE;
 	
-	private static final List<BlockFace> ATTACHABLE_FACES = ImmutableList.of(
+	private static final List<BlockFace> SIGN_ATTACHABLE_FACES = ImmutableList.of(
 			BlockFace.NORTH,
 			BlockFace.SOUTH,
 			BlockFace.EAST,
@@ -75,7 +75,7 @@ public class CustomJukeboxManager implements Listener {
 			.collect(Collectors.toList());
 		
 		removeables.forEach(cj -> {
-				cj.stop();
+				cj.destroy();
 			});
 		
 		customJukeboxes.removeAll(removeables);
@@ -83,7 +83,7 @@ public class CustomJukeboxManager implements Listener {
 	
 	public void destroy() {
 		customJukeboxes.forEach(cj -> {
-			cj.stop();
+			cj.destroy();
 		});
 		customJukeboxes.clear();
 		
@@ -204,7 +204,7 @@ public class CustomJukeboxManager implements Listener {
 	 * @param loc The location of the new jukebox.
 	 */
 	private void checkProximity(Location loc, Player player) {
-		if (player != null && !player.hasPermission("customjukebox.placementrestrictions")) {
+		if (player == null || (player != null && !player.hasPermission("customjukebox.placementrestrictions"))) {
 			return;
 		}
 		
@@ -220,7 +220,7 @@ public class CustomJukeboxManager implements Listener {
 	}
 	
 	private List<Block> getAttachedMusicSignBlocks(Block block) {
-		return ATTACHABLE_FACES.stream()
+		return SIGN_ATTACHABLE_FACES.stream()
 			.flatMap(face -> {
 				Block adjacentBlock = block.getRelative(face);
 				
