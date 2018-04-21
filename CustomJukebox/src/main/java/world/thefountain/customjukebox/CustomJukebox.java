@@ -139,7 +139,7 @@ public class CustomJukebox implements Listener {
 			if (event.getEntity() instanceof ItemFrame) {
 				if (this.volumeKnob == null) {
 					this.volumeKnob = (ItemFrame) event.getEntity();
-					event.getPlayer().sendMessage("Volume knob attached.");
+					event.getPlayer().sendMessage("Volume knob attached. Put and item inside and rotate it to adjust volume.");
 				} else if (!this.volumeKnob.equals(event.getEntity())) {
 					event.setCancelled(true);
 					event.getPlayer().sendMessage("Only one volume knob allowed on the jukebox.");
