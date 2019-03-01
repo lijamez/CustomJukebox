@@ -147,7 +147,7 @@ public class CustomJukeboxManager implements Listener {
 					
 					event.getPlayer().sendMessage(sb.toString());
 					
-					Bukkit.getLogger().info("Player " + event.getPlayer().getName() + " has created a custom jukebox at " + cj.getSignLocation() + " playing '" + cj.getSong().getTitle() + "'.");
+					Bukkit.getLogger().finer("Player " + event.getPlayer().getName() + " has created a custom jukebox at " + cj.getSignLocation() + " playing '" + cj.getSong().getTitle() + "'.");
 				}
 			} catch (UserException e) {
 				event.getPlayer().sendMessage(ChatColor.RED + "Error: " + e.getMessage());
@@ -251,6 +251,6 @@ public class CustomJukeboxManager implements Listener {
 		}
 		sb.append("custom jukebox at " + cj.getSignLocation() + " that was playing '" + cj.getSong().getTitle() + "'.");
 		
-		Bukkit.getLogger().info(sb.toString());
+		Bukkit.getLogger().finer(sb.toString());
 	}
 }

@@ -27,6 +27,7 @@ import org.bukkit.plugin.Plugin;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.xxmicloxx.NoteBlockAPI.event.SongEndEvent;
+import com.xxmicloxx.NoteBlockAPI.model.RepeatMode;
 import com.xxmicloxx.NoteBlockAPI.model.Song;
 import com.xxmicloxx.NoteBlockAPI.model.SoundCategory;
 import com.xxmicloxx.NoteBlockAPI.songplayer.PositionSongPlayer;
@@ -202,7 +203,7 @@ public class CustomJukebox implements Listener {
 		
 		PositionSongPlayer sp = new PositionSongPlayer(song, SoundCategory.RECORDS);
 		sp.setTargetLocation(location);
-		sp.setAutoDestroy(true);
+		sp.setRepeatMode(RepeatMode.ALL);
 		sp.setDistance(MAX_AUDIBLE_DISTANCE);
 		sp.setPlaying(true);
 		
