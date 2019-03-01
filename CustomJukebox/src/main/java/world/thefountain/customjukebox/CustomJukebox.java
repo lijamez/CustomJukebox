@@ -26,11 +26,11 @@ import org.bukkit.plugin.Plugin;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.xxmicloxx.NoteBlockAPI.PositionSongPlayer;
-import com.xxmicloxx.NoteBlockAPI.Song;
-import com.xxmicloxx.NoteBlockAPI.SongEndEvent;
-import com.xxmicloxx.NoteBlockAPI.SongPlayer;
-import com.xxmicloxx.NoteBlockAPI.SoundCategory;
+import com.xxmicloxx.NoteBlockAPI.event.SongEndEvent;
+import com.xxmicloxx.NoteBlockAPI.model.Song;
+import com.xxmicloxx.NoteBlockAPI.model.SoundCategory;
+import com.xxmicloxx.NoteBlockAPI.songplayer.PositionSongPlayer;
+import com.xxmicloxx.NoteBlockAPI.songplayer.SongPlayer;
 
 public class CustomJukebox implements Listener {
 	
@@ -66,6 +66,7 @@ public class CustomJukebox implements Listener {
 		this.volumeKnob = detectVolumeKnob();
 		
 		this.songPlayer = createPositionSongPlayer(this.song, jukebox.getLocation());
+		this.songPlayer.getFadeIn().setFadeDuration(0);
 		updateVolumeFromKnob();
 
 		this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -193,13 +194,7 @@ public class CustomJukebox implements Listener {
 			this.volumeFactor = ROTATION_TO_VOLUME_FACTOR.getOrDefault(this.volumeKnob.getRotation(), 1d);
 		}
 		
-		// Prevents smooth volume fading when changing volume.
-		this.songPlayer.setFadeDuration(0);
-		this.songPlayer.setFadeDone(0);
-		
 		byte targetVolume = (byte) (MAX_INTERNAL_VOLUME * volumeFactor);
-		this.songPlayer.setFadeTarget(targetVolume);
-		this.songPlayer.setFadeStart(targetVolume);
 		this.songPlayer.setVolume(targetVolume);
 	}
 	

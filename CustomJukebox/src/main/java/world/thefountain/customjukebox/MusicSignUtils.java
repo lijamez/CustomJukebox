@@ -4,10 +4,8 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 
-import com.xxmicloxx.NoteBlockAPI.Song;
+import com.xxmicloxx.NoteBlockAPI.model.Song;
 
 class MusicSignUtils {
 
@@ -62,27 +60,18 @@ class MusicSignUtils {
 		return Optional.empty();
 	}
 	
-	public static boolean isMusicSign(Block signBlock, String[] signLines) {
-		if (signBlock == null) {
-			throw new IllegalArgumentException("signBlock must be non-null.");
-		}
+	public static boolean isMusicSign(String[] signLines) {
 		
 		if (signLines == null) {
 			throw new IllegalArgumentException("signLines must be non-null.");
 		}
 		
-		
-		if (signBlock.getState().getType() == Material.WALL_SIGN || signBlock.getState().getType() == Material.SIGN_POST) {
-			
-			if (signLines.length <= 1) {
-				return false;
-			}
-			
-			String firstLine = signLines[0];
-			return SIGN_HEADER.equals(firstLine);
+		if (signLines.length <= 1) {
+			return false;
 		}
 		
-		return false;
+		String firstLine = signLines[0];
+		return SIGN_HEADER.equals(firstLine);
 	}
 	
 }

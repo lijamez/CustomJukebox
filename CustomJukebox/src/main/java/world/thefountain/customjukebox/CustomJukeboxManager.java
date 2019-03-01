@@ -31,7 +31,7 @@ import org.bukkit.plugin.Plugin;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.xxmicloxx.NoteBlockAPI.Song;
+import com.xxmicloxx.NoteBlockAPI.model.Song;
 
 public class CustomJukeboxManager implements Listener {
 
@@ -166,7 +166,7 @@ public class CustomJukeboxManager implements Listener {
 		Sign sign = (Sign) bs.getData();
 		Block attachedBlock = signBlock.getRelative(sign.getAttachedFace());
 		
-		if (MusicSignUtils.isMusicSign(signBlock, signLines) && attachedBlock != null && attachedBlock.getType() == Material.JUKEBOX) {
+		if (MusicSignUtils.isMusicSign(signLines) && attachedBlock != null && attachedBlock.getType() == Material.JUKEBOX) {
 			
 			Utils.assertPermissions(player, "customjukebox.placemusicsign");
 			checkSingletonMusicSign(attachedBlock, signBlock);
@@ -227,7 +227,7 @@ public class CustomJukeboxManager implements Listener {
 				if (adjacentBlock.getState() instanceof org.bukkit.block.Sign) {
 					org.bukkit.block.Sign s = (org.bukkit.block.Sign) adjacentBlock.getState();
 					
-					if (MusicSignUtils.isMusicSign(adjacentBlock, s.getLines())) {
+					if (MusicSignUtils.isMusicSign(s.getLines())) {
 						return Lists.newArrayList(adjacentBlock).stream();
 					}
 				}
