@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -50,6 +51,7 @@ public class CustomJukebox implements Listener {
 	private final Block sign;
 	private final Block jukebox;
 	private final Song song;
+	private final BukkitTask particleTask;
 
 	private PositionSongPlayer songPlayer = null;
 	
@@ -69,6 +71,10 @@ public class CustomJukebox implements Listener {
 		updateVolumeFromKnob();
 
 		this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
+
+		// The task period is inversely proportional to the song's speed.
+		int taskPeriod = (int) (50.0/this.song.getSpeed());
+		this.particleTask = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, (Runnable) new MusicParticleTask(this), 0, taskPeriod);
 	}
 	
 	private ItemFrame detectVolumeKnob() {
@@ -94,8 +100,14 @@ public class CustomJukebox implements Listener {
 		HandlerList.unregisterAll(this);
 		this.songPlayer.destroy();
 		
+		this.plugin.getServer().getScheduler().cancelTask(particleTask.getTaskId());
+		
 		CustomJukeboxDestroyedEvent event = new CustomJukeboxDestroyedEvent(this, player);
 		this.plugin.getServer().getPluginManager().callEvent(event);
+	}
+	
+	public Location getJukeboxLocation() {
+		return this.jukebox.getLocation();
 	}
 	
 	public Location getSignLocation() {
