@@ -26,12 +26,10 @@ import org.bukkit.plugin.Plugin;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.xxmicloxx.NoteBlockAPI.event.SongEndEvent;
 import com.xxmicloxx.NoteBlockAPI.model.RepeatMode;
 import com.xxmicloxx.NoteBlockAPI.model.Song;
 import com.xxmicloxx.NoteBlockAPI.model.SoundCategory;
 import com.xxmicloxx.NoteBlockAPI.songplayer.PositionSongPlayer;
-import com.xxmicloxx.NoteBlockAPI.songplayer.SongPlayer;
 
 public class CustomJukebox implements Listener {
 	
@@ -112,18 +110,6 @@ public class CustomJukebox implements Listener {
 	@EventHandler
 	public void onLogout(PlayerQuitEvent event) {
 		songPlayer.removePlayer(event.getPlayer());
-	}
-	
-	@EventHandler
-	public void onSongEnd(SongEndEvent event) {
-		if (event.getSongPlayer().equals(this.songPlayer)) {
-			SongPlayer oldPlayer = this.songPlayer;
-			
-			this.songPlayer = createPositionSongPlayer(this.song, jukebox.getLocation());
-			updateVolumeFromKnob();
-			
-			oldPlayer.destroy();
-		}
 	}
 	
 	@EventHandler(ignoreCancelled = true)
