@@ -1,7 +1,7 @@
 name: CustomJukebox
 main: world.thefountain.customjukebox.CustomJukeboxPlugin
 version: 0.1
-api-version: 1.13
+api-version: 1.14
 author: Tonberry
 depend: [NoteBlockAPI]
 commands:

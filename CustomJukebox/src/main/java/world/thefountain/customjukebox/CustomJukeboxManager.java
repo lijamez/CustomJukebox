@@ -18,6 +18,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -25,7 +27,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.material.Sign;
 import org.bukkit.plugin.Plugin;
 
 import com.google.common.base.Preconditions;
@@ -163,8 +164,10 @@ public class CustomJukeboxManager implements Listener {
 		}
 		
 		Block signBlock = bs.getBlock();
-		Sign sign = (Sign) bs.getData();
-		Block attachedBlock = signBlock.getRelative(sign.getAttachedFace());
+		Sign sign = (Sign) signBlock.getState();
+		WallSign wallSign = (WallSign) sign.getBlockData();
+		
+		Block attachedBlock = signBlock.getRelative(wallSign.getFacing().getOppositeFace());
 		
 		if (MusicSignUtils.isMusicSign(signLines) && attachedBlock != null && attachedBlock.getType() == Material.JUKEBOX) {
 			
