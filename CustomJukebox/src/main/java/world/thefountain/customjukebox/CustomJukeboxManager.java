@@ -19,6 +19,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -159,15 +160,13 @@ public class CustomJukeboxManager implements Listener {
 	
 	private Optional<CustomJukebox> createCustomJukeboxFrom(BlockState bs, String[] signLines, Player player) {
 		
-		if (!(bs instanceof org.bukkit.block.Sign)) {
+		if (!(bs instanceof Sign)) {
 			return Optional.empty();
 		}
 		
 		Block signBlock = bs.getBlock();
-		Sign sign = (Sign) signBlock.getState();
-		WallSign wallSign = (WallSign) sign.getBlockData();
 		
-		Block attachedBlock = signBlock.getRelative(wallSign.getFacing().getOppositeFace());
+		Block attachedBlock = getAttachedBlock((Sign) bs).orElse(null);
 		
 		if (MusicSignUtils.isMusicSign(signLines) && attachedBlock != null && attachedBlock.getType() == Material.JUKEBOX) {
 			
@@ -182,10 +181,30 @@ public class CustomJukeboxManager implements Listener {
 				
 				return Optional.of(cj);
 			}
-			
 		}
 		
 		return Optional.empty();
+	}
+	
+	private Optional<Block> getAttachedBlock(Sign sign) {
+		
+		Block signBlock = sign.getBlock();
+		
+		BlockData signBlockData = sign.getBlockData();
+		
+		Block attachedBlock = null;
+		if (signBlockData instanceof WallSign) {
+			// It's a sign attached to a wall.
+			WallSign wallSign = (WallSign) signBlockData;
+			attachedBlock = signBlock.getRelative(wallSign.getFacing().getOppositeFace());
+		} else if (signBlockData instanceof org.bukkit.block.data.type.Sign) {
+			// It's a free-standing sign with a post.
+			attachedBlock = signBlock.getRelative(BlockFace.DOWN);
+		} else {
+			// Not sure what this sign is...
+		}
+		
+		return Optional.ofNullable(attachedBlock);
 	}
 	
 	/**
